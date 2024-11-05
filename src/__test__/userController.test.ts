@@ -1,9 +1,8 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import User from "../models/user.models"; // Sesuaikan dengan jalur model Anda
-import { loginUser } from "../controllers/userController"; // Sesuaikan dengan jalur controller Anda
-// import jwt from "jsonwebtoken"; // Pastikan ini ada jika Anda menggunakannya dalam pengujian
-
+import User from "../models/user.models"; 
+import { loginUser } from "../controllers/userController"; 
+// import jwt from "jsonwebtoken"; 
 jest.mock("bcrypt");
 jest.mock("../models/user.models");
 

@@ -2,10 +2,10 @@
   "name": "task-5-cicd",
   "version": "1.0.0",
   "description": "task-5 unit testing & CI/CD",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node dist/index.ts",
-    "dev": "nodemon app.ts",
+    "start": "node dist/app.js",
+    "dev": "nodemon src/app.ts",
     "build": "tsc",
     "test": "jest --runInBand --detectOpenHandles --forceExit",
     "test:coverage": "jest --coverage --runInBand",

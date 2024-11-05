@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteBook = exports.updateBook = exports.createBook = exports.getAllBooks = void 0;
 const book_models_1 = __importDefault(require("../models/book.models"));
 // ambil semua data buku
-const getAllBooks = async (req, res) => {
+const getAllBooks = async (_, res) => {
     try {
-        const book = await book_models_1.default.find();
-        res.json(book);
+        const books = await book_models_1.default.find();
+        res.json(books);
     }
     catch (error) {
-        res.status(500).json({ message: "error" });
+        res.status(500).json({ message: "Error retrieving books" });
     }
 };
 exports.getAllBooks = getAllBooks;

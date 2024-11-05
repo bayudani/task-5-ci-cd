@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import connectDB from './src/config/database';
-import bookRoutes from './src/routes/book.Routes';
-import userRoutes from './src/routes/user.Routes';
+import connectDB from './config/database';
+import bookRoutes from './routes/book.Routes';
+import userRoutes from './routes/user.Routes';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './src/config/swagger';
+import swaggerSpec from './config/swagger';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -18,9 +18,8 @@ app.use('/api/users', userRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 connectDB()
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 export default app;
