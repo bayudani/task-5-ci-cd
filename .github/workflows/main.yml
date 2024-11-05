@@ -1,4 +1,4 @@
-name: Express MongoDB CI/CD
+name: Docker CI/CD
 
 on:
   push:
@@ -11,9 +11,10 @@ on:
       - master
 
 env:
-  MONGODB_URI: mongodb://mongo:27017/test
-  NODE_ENV: test
-  PORT: 3500
+  MONGODB_URI: mongodb+srv://bayu22122017:3ATqGscxEd9dDJ4L@cluster0.
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PORT: 3000
 
 jobs:
   build-and-test:
@@ -30,17 +31,27 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
-      - name: Set up Docker Compose
-        uses: ndeloof/install-compose-action@v0.0.1
+      - name: Set up Docker
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and test Docker image
+      - name: Build and test
         run: |
           docker-compose build
           docker-compose up -d
           docker-compose exec -T app npm test
           docker-compose down
+
+      - name: Run tests in container
+        run: |
+          docker compose -f docker-compose.test.yml up --exit-code-from app
+        continue-on-error: false
 
   deploy:
     needs: build-and-test
@@ -51,18 +62,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Login to Docker Hub
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Log in to GitHub Container registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
+          context: .
           push: true
-          tags: franszalukhu/task-5-productzilla-app:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Deploy to production
-        run: |
-          echo "Deployment step - add your deployment commands here"
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USERNAME }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd /opt/app
+            docker compose pull
+            docker compose up -d
