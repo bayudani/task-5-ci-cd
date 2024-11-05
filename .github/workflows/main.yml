@@ -11,10 +11,9 @@ on:
       - master
 
 env:
-  MONGODB_URI: mongodb+srv://bayu22122017:3ATqGscxEd9dDJ4L@cluster0.
+
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PORT: 3000
 
 jobs:
   build-and-test:
@@ -29,12 +28,10 @@ jobs:
 
       - name: Install Docker Compose
         run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Set up Docker
+      - name: Log in to GitHub Container registry
         uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
@@ -42,11 +39,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and test
-        run: |
-          docker-compose build
-          docker-compose up -d
-          docker-compose exec -T app npm test
-          docker-compose down
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Run tests in container
         run: |
