@@ -25,6 +25,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       - name: Log in to GitHub Container registry
         uses: docker/login-action@v2
         with:
@@ -44,6 +49,7 @@ jobs:
       - name: Run tests in container
         run: |
           docker-compose -f docker-compose.test.yml up --exit-code-from app
+        continue-on-error: false
 
   deploy:
     needs: build-and-test
@@ -56,6 +62,11 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Log in to GitHub Container registry
         uses: docker/login-action@v2
