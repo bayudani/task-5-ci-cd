@@ -48,7 +48,7 @@ jobs:
 
       - name: Run tests in container
         run: |
-          docker-compose -f docker-compose.test.yml up --exit-code-from app
+          docker compose -f docker-compose.test.yml up --exit-code-from app
         continue-on-error: false
 
   deploy:
@@ -94,5 +94,5 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd /opt/app
-            docker-compose pull
-            docker-compose up -d
+            docker compose pull
+            docker compose up -d
