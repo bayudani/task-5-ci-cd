@@ -8,20 +8,20 @@ jest.mock("../models/user.models");
 
 describe("AuthController", () => {
     beforeAll(() => {
-        process.env.JWT_SECRET = "testsecret"; // Set variabel lingkungan untuk pengujian
+        process.env.JWT_SECRET = "testsecret"; 
     });
 
     it("should return a token on successful login", async () => {
         const mockUser = {
             _id: "user_id",
-            username: "testuser",
-            password: "hashedpassword",
+            username: "user",
+            password: "password",
         };
         (User.findOne as jest.Mock).mockResolvedValue(mockUser);
         (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
         const req = {
-            body: { username: "testuser", password: "password" },
+            body: { username: "user", password: "password" },
         } as Request;
         const res = {
             status: jest.fn().mockReturnThis(),
@@ -40,7 +40,7 @@ describe("AuthController", () => {
         (User.findOne as jest.Mock).mockResolvedValue(null);
 
         const req = {
-            body: { username: "testuser", password: "password" },
+            body: { username: "user", password: "password" },
         } as Request;
         const res = {
             status: jest.fn().mockReturnThis(),
